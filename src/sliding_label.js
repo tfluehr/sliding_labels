@@ -26,10 +26,7 @@ function formatSliderLabels(form){
         
         //onload, check if a field is filled out, if so, move the label out of the way
         if (inputval !== '') {
-            new Effect.Move(el, {
-                x: -labelmove,
-                duration: duration
-            });
+            el.morph('left:'+(restingPosition-labelmove)+'px');
         }
         // if the input is empty on focus move the label to the left
         // if it's empty on blur, move it back
@@ -40,10 +37,7 @@ function formatSliderLabels(form){
             var value = $(this).getValue();
             
             if (value === '') {
-                new Effect.Move(label, {
-                    x: -adjust,
-                    duration: duration
-                });
+                el.morph('left:'+(restingPosition-adjust)+'px');
             }
             else {
                 label.setStyle({
@@ -55,12 +49,7 @@ function formatSliderLabels(form){
             var value = $(this).getValue();
             
             if (value === '') {
-                new Effect.Move(label, {
-                    x: restingPosition,
-                    y: topPosition,
-                    mode: 'absolute',
-                    duration: duration
-                });
+                el.morph('left:'+(restingPosition)+'px');
             }
         });
     });
