@@ -14,21 +14,37 @@
           labelInColor: '#999',
           labelOutColor: '#000',
           restingPosition: 5,
-          topPosition: 6,
+          crossPosition: 6,
           effectDuration: 0.2,
-          labelAdjustment: 10
+          labelAdjustment: 10,
+          orientation: 'horizontal'
       }, options);
-
-      form.select('.slider label').each(function(label){
+      
+      if (this.options.orientation == 'vertical'){
+          
+      }
+     form.select('.slider label').each(function(label){
           // style the label with JS for progressive enhancement
-          label.setStyle({
-              'color': this.options.labelInColor,
-              'position': 'absolute',
-              'top': this.options.topPosition + 'px',
-              'left': this.options.restingPosition + 'px',
-              'display': 'inline',
-              'z-index': '99'
-          });
+          if (this.options.orientation == 'vertical'){
+              label.setStyle({
+                  'color': this.options.labelInColor,
+                  'position': 'absolute',
+                  'left': this.options.crossPosition + 'px',
+                  'top': this.options.restingPosition + 'px',
+                  'display': 'inline',
+                  'zIndex': '99'
+              });
+          }
+          else{
+              label.setStyle({
+                  'color': this.options.labelInColor,
+                  'position': 'absolute',
+                  'top': this.options.crossPosition + 'px',
+                  'left': this.options.restingPosition + 'px',
+                  'display': 'inline',
+                  'zIndex': '99'
+              });
+          }
           // grab the input value
           var input = label.next('input');
           var inputval = input.getValue();
@@ -46,18 +62,33 @@
           input.observe('focus', function(ev){
               var input = ev.element();
               var label = input.previous('label');
-              var width = label.getWidth();
-              var adjust = width + this.options.labelAdjustment;
               var value = input.getValue();
-
-              if (value === '') {
-                  label.morph('left:'+(this.options.restingPosition-adjust)+'px;color:' + this.options.labelOutColor + ';');
+                
+              if (this.options.orientation == 'vertical') {
+                  var width = label.getWidth();
+                  var adjust = width + this.options.labelAdjustment;
+                  if (value === '') {
+                      label.morph('left:' + (this.options.restingPosition - adjust) + 'px;color:' + this.options.labelOutColor + ';');
+                  }
+                  else {
+                      label.setStyle({
+                          'left': (-adjust) + 'px',
+                          'color': this.options.labelOutColor
+                      });
+                  }
               }
               else {
-                  label.setStyle({
-                      'left': (-adjust) + 'px',
-                      'color': this.options.labelOutColor
-                  });
+                  var width = label.getWidth();
+                  var adjust = width + this.options.labelAdjustment;
+                  if (value === '') {
+                      label.morph('left:' + (this.options.restingPosition - adjust) + 'px;color:' + this.options.labelOutColor + ';');
+                  }
+                  else {
+                      label.setStyle({
+                          'left': (-adjust) + 'px',
+                          'color': this.options.labelOutColor
+                      });
+                  }
               }
           }.bindAsEventListener(this)).observe('blur', function(ev){
               var input = ev.element();

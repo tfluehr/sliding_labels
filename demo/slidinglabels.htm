@@ -11,7 +11,7 @@
       form                       { width:380px;padding:0 90px 20px;margin:auto;background:#f7f7f7;border:1px solid #ddd; }
       div                        { clear:both;position:relative;margin:0 0 10px; }
       label                      { cursor:pointer;display:block; }
-      input[type="text"]         { width:300px;border:1px solid #999;padding:5px;-moz-border-radius:4px; }
+      input[type="text"]         { position:relative;width:300px;border:1px solid #999;padding:5px;-moz-border-radius:4px; }
       input[type="text"]:focus   { border-color:#777; }
       input[name="zip"]          { width:150px; }
 
@@ -27,7 +27,8 @@
     <script type="text/javascript">
       document.observe('dom:loaded', function(ev){
         new SlidingLabels('info', {
-            labelInColor: '#AF0A0A'
+            labelInColor: '#AF0A0A',
+            orientation: 'vertical'
         });
       });
     </script>
