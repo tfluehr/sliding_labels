@@ -3,70 +3,68 @@
 
 (function(){
   // TODO: check for Prototype/scripty2
-  // TODO: support overriding of default options
-  
+  // TODO: tests
   SlidingLabels = Class.create({
     initialize: function(elementId, options) {
       form = $(elementId);
-       
+      
       // default options list.
       this.options = Object.extend({
-          labelInColor: '#999',
-          labelOutColor: '#000',
-          restingPosition: 5,
-          topPosition: 6,
-          effectDuration: 0.2,
-          labelAdjustment: 10
+        labelInColor:     '#999',
+        labelOutColor:    '#000',
+        restingPosition:  5,
+        topPosition:      6,
+        effectDuration:   0.2,
+        labelAdjustment:  10
       }, options);
 
       form.select('.slider label').each(function(label){
           // style the label with JS for progressive enhancement
           label.setStyle({
-              'color': this.options.labelInColor,
-              'position': 'absolute',
-              'top': this.options.topPosition + 'px',
-              'left': this.options.restingPosition + 'px',
-              'display': 'inline',
-              'z-index': '99'
+            'position': 'absolute',
+            'color':    this.options.labelInColor,
+            'top':      this.options.topPosition + 'px',
+            'left':     this.options.restingPosition + 'px',
+            'display': 'inline',
+            'z-index': '99'
           });
+          
           // grab the input value
-          var input = label.next('input');
-          var inputval = input.getValue();
+          var input = label.next('input'), inputval = input.getValue();
 
           // grab the label width, then add 5 pixels to it
-          var labelwidth = label.getWidth();
-          var labelmove = labelwidth + this.options.labelAdjustment;
+          var labelwidth = label.getWidth(), labelmove = labelwidth + this.options.labelAdjustment;
 
           //onload, check if a field is filled out, if so, move the label out of the way
-          if (inputval !== '') {
-              label.morph('left:'+(this.options.restingPosition-labelmove)+'px;color:' + this.options.labelOutColor + ';');
+          if (!inputval.blank()) {
+            label.morph('left:' + (this.options.restingPosition - labelmove) + 'px; color:' + this.options.labelOutColor + ';');
           }
+          
           // if the input is empty on focus move the label to the left
           // if it's empty on blur, move it back
           input.observe('focus', function(ev){
-              var input = ev.element();
-              var label = input.previous('label');
-              var width = label.getWidth();
-              var adjust = width + this.options.labelAdjustment;
-              var value = input.getValue();
-
-              if (value === '') {
-                  label.morph('left:'+(this.options.restingPosition-adjust)+'px;color:' + this.options.labelOutColor + ';');
-              }
-              else {
-                  label.setStyle({
-                      'left': (-adjust) + 'px',
-                      'color': this.options.labelOutColor
-                  });
-              }
+            var input  = ev.element(),
+                label  = input.previous('label'),
+                width  = label.getWidth(),
+                adjust = width + this.options.labelAdjustment,
+                value  = input.getValue();
+              
+            if (value.blank()) {
+              label.morph('left:' + (this.options.restingPosition - adjust) + 'px; color:' + this.options.labelOutColor + ';');
+            } else {
+              label.setStyle({
+                'left': (-adjust) + 'px',
+                'color': this.options.labelOutColor
+              });
+            }
           }.bindAsEventListener(this)).observe('blur', function(ev){
-              var input = ev.element();
-              var label = input.previous('label');
-              var value = input.getValue();
-
-              if (value === '') {
-                  label.morph('left:'+(this.options.restingPosition)+'px;color:'+this.options.labelInColor+';');
-              }
+            var input = ev.element();
+            var label = input.previous('label');
+            var value = input.getValue();
+            
+            if (value.blank()) {
+              label.morph('left:' + (this.options.restingPosition) + 'px; color:' + this.options.labelInColor + ';');
+            }
           }.bindAsEventListener(this));
       }.bind(this));
     }
