@@ -1,4 +1,6 @@
-// ported to prototype from http://www.csskarma.com/lab/slidinglabels/
+// Inspired by http://www.csskarma.com/lab/slidinglabels/
+// Prototype port by http://tfluehr.com and http://robsterner.com
+
 (function(){
   // TODO: check for Prototype/scripty2
   // TODO: support overriding of default options
