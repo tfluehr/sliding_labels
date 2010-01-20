@@ -1,4 +1,5 @@
 //ported to prototype from http://www.csskarma.com/lab/slidinglabels/
+// initial port by http://www.tfluehr.com
 function formatSliderLabels(form){
     form = $(form);
     var labelColor = '#999';
@@ -37,11 +38,12 @@ function formatSliderLabels(form){
             var value = $(this).getValue();
             
             if (value === '') {
-                el.morph('left:'+(restingPosition-adjust)+'px');
+                el.morph('left:'+(restingPosition-adjust)+'px;color:#000;');
             }
             else {
                 label.setStyle({
-                    'left': (-adjust) + 'px'
+                    'left': (-adjust) + 'px',
+                    'color': '#000'
                 });
             }
         }).observe('blur', function(ev){
@@ -49,7 +51,7 @@ function formatSliderLabels(form){
             var value = $(this).getValue();
             
             if (value === '') {
-                el.morph('left:'+(restingPosition)+'px');
+                el.morph('left:'+(restingPosition)+'px;color:' + labelColor + ';');
             }
         });
     });
