@@ -8,47 +8,11 @@
   // TODO: tests
   SlidingLabels = Class.create({
     initialize: function(elementId, options){
-      form = $(elementId);
+      this.form = $(elementId);
       // default options list.
-      var defaultOptions = {
-        labelInColor: '#999',
-        labelOutColor: '#000',
-        morphPosition: 5,
-        crossPosition: 6,
-        morphOffset: 5,
-        effectDuration: 0.2,
-        labelAdjustment: 10,
-        direction: 'left'
-      };
-      this.options = Object.extend(defaultOptions, options);
-      
-      
-      this.internalOptions = {
-        morphIdent: 'label',
-        morphProp: 'left',
-        crossProp: 'top'
-      };
-      switch (this.options.direction){
-        case 'right':
-          break;
-        case 'bottom':
-          this.options.morphPosition = 6;
-          this.options.crossPosition = 5;
-          this.internalOptions.morphIdent = 'input';
-          this.internalOptions.morphProp = 'margin-bottom';
-          this.internalOptions.crossProp = 'left';
-          break;
-        case 'top':
-          this.options.morphPosition = 6;
-          this.options.crossPosition = 5;
-          this.internalOptions.morphIdent = 'input';
-          this.internalOptions.morphProp = 'margin-top';
-          this.internalOptions.crossProp = 'left';
-          break;          
-        //default:
-      }
-      
-      form.select('.slider label').each((function(label){
+      this.setupOptions(options);
+	  
+      this.form.select('.slider label').each((function(label){
         // style the label with JS for progressive enhancement
         var elements = {};
         elements.label = label;
@@ -61,7 +25,12 @@
         styles += 'display:inline;';
         styles += 'z-index:99;';
         styles += this.internalOptions.crossProp + ':' +this.options.crossPosition + 'px;';
-        styles += this.internalOptions.morphProp + ':' +this.options.morphPosition + 'px;';
+		if (this.options.direction === 'bottom') {
+			styles += 'top:' + this.options.morphPosition + 'px;';
+		}
+		else {
+			styles += this.internalOptions.morphProp + ':' + this.options.morphPosition + 'px;';
+		}
         elements.label.setStyle(styles);
         
         // grab the input value
@@ -125,7 +94,7 @@
             label.morph('color:' + this.options.labelInColor + ';',{
               duration: this.options.effectDuration,
               position: 'parallel'
-            });;
+            });
             elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp+':' + (this.calculateMove(elements)) + 'px;',{
               duration: this.options.effectDuration,
               position: 'parallel'
@@ -143,6 +112,10 @@
             val += this.options.morphOffset;
             break;
           case 'bottom':
+			elements.label.morph('top:' + this.options.morphPosition + 'px',{
+              duration: this.options.effectDuration,
+              position: 'parallel'
+            });
             break;
           case 'top':
             //val -= elements.label.getHeight();
@@ -162,6 +135,10 @@
             break;
           case 'bottom':
             val += elements.input.getHeight();
+			elements.label.morph('top:' + (elements.input.getHeight() + this.options.morphOffset+ this.options.morphOffset) + 'px',{
+              duration: this.options.effectDuration,
+              position: 'parallel'
+            });
             break;
           case 'top':
             val += elements.label.getHeight();
@@ -176,6 +153,45 @@
         }
       }
       return val;
-    }
+    },
+	setupOptions: function(options){
+      var defaultOptions = {
+        labelInColor: '#999',
+        labelOutColor: '#000',
+        morphPosition: 5,
+        crossPosition: 6,
+        morphOffset: 5,
+        effectDuration: 0.2,
+        labelAdjustment: 10,
+        direction: 'left'
+      };
+      this.options = Object.extend(defaultOptions, options);
+      
+      
+      this.internalOptions = {
+        morphIdent: 'label',
+        morphProp: 'left',
+        crossProp: 'top'
+      };
+      switch (this.options.direction){
+        case 'right':
+          break;
+        case 'bottom':
+          this.options.morphPosition = 6;
+          this.options.crossPosition = 5;
+          this.internalOptions.morphIdent = 'input';
+          this.internalOptions.morphProp = 'margin-bottom';
+          this.internalOptions.crossProp = 'left';
+          break;
+        case 'top':
+          this.options.morphPosition = 6;
+          this.options.crossPosition = 5;
+          this.internalOptions.morphIdent = 'input';
+          this.internalOptions.morphProp = 'margin-top';
+          this.internalOptions.crossProp = 'left';
+          break;          
+        //default:
+      }
+	}
   });
 })();

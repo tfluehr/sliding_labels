@@ -25,12 +25,16 @@
     <script type="text/javascript" src="../lib/prototype.s2.min.js"></script>
     <script type="text/javascript" src="../src/sliding_label.js"></script>
     <script type="text/javascript">
+      var labels;
       document.observe('dom:loaded', function(ev){
-        new SlidingLabels('info', {
+        labels = new SlidingLabels('info', {
             labelInColor: '#AF0A0A',
             effectDuration: 0.6,
-            direction: 'bottom'
+            direction: $F('changePosition')
         });
+		$('changePosition').observe('change', function(ev){
+			labels.options.direction = $F(ev.element());
+		});
       });
     </script>
   </head>
@@ -38,6 +42,12 @@
     <h1>
       Prototype-based Sliding Labels Inspired by <a href="http://www.csskarma.com" rel="home">CSSKarma</a>
     </h1>
+	<select id="changePosition">
+		<option value="top" selected="selected">top</option>
+		<option value="bottom">bottom</option>
+		<option value="left">left</option>
+		<option value="right">right</option>
+	</select>
     <form action="" method="post" id="info" name="info">
       <h2>
         Contact Information
