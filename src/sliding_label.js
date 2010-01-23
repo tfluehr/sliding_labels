@@ -10,109 +10,149 @@
     initialize: function(elementId, options){
       this.form = $(elementId);
       // default options list.
+      this.focusHandler = this.onFocus.bindAsEventListener(this);
+      this.blurHandler = this.onBlur.bindAsEventListener(this);
       this.setupOptions(options);
-	  
+      this.setupForm();
+    },
+    changePosition: function(position){
+      this.resetStyles();
+      this.options.direction = position;
+      this.setupOptions(this.options);
+      this.setupForm();
+    },
+    resetStyles: function(){
+      this.form.select('.slider label').each((function(label){
+        var propVal;
+        if ((propVal = label.retrieve('origVal')) !== 'undefined') {
+          propVal = parseInt(label.getStyle(this.internalOptions.morphProp.camelize()), 10);
+          propVal = isNaN(propVal) ? 0 : propVal;
+          var styles = {
+            color: '',
+            position: '',
+            display: '',
+            zIndex: ''
+          };
+          styles[this.internalOptions.crossProp.camelize()] = '';
+          styles.top = '';
+          styles[this.internalOptions.morphProp.camelize()] = '';
+          label.setStyle(styles);
+        }
+        label.store('origVal');
+      }).bind(this));
+    },
+    setupForm: function(){
       this.form.select('.slider label').each((function(label){
         // style the label with JS for progressive enhancement
         var elements = {};
         elements.label = label;
-        var propVal = parseInt(label.getStyle('this.internalOptions.morphProp'), 10);
-        propVal = isNaN(propVal) ? 0 : propVal;
-        label.store('origVal', propVal);
-        var styles = '';
-        styles += 'color:' +this.options.labelInColor+';';
-        styles += 'position:absolute;';
-        styles += 'display:inline;';
-        styles += 'z-index:99;';
-        styles += this.internalOptions.crossProp + ':' +this.options.crossPosition + 'px;';
-		if (this.options.direction === 'bottom') {
-			styles += 'top:' + this.options.morphPosition + 'px;';
-		}
-		else {
-			styles += this.internalOptions.morphProp + ':' + this.options.morphPosition + 'px;';
-		}
-        elements.label.setStyle(styles);
+        elements.input = elements.label.next('input');
         
-        // grab the input value
-        var input = label.next('input'), inputval = input.getValue();
-        elements.input = input;
-        // grab the label width, then add 5 pixels to it
-        var labelwidth = label.getWidth(), labelmove = labelwidth + this.options.labelAdjustment;
-        
-        //onload, check if a field is filled out, if so, move the label out of the way
-        if (!inputval.blank()) {
-          //this.options.morphPosition - labelmove
-          label.morph('color:' + this.options.labelOutColor + ';',{
-            duration: this.options.effectDuration,
-            position: 'parallel'
-          });
-          elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp+':' + (this.calculateMove(elements, true)) + 'px;',{
-            duration: this.options.effectDuration,
-            position: 'parallel'
-          });
-        }
+        this.initializeElement(elements);
         
         // if the input is empty on focus move the label to the left
         // if it's empty on blur, move it back
-        input.observe('focus', (function(ev){
-          var input = ev.element();
-          var label = input.previous('label');
-          var elements = {};
-          elements.label = label;
-          elements.input = input;
-          var value = input.getValue();
-          var styles;
-          //var width = label.getWidth();
-          //var adjust = width + this.options.labelAdjustment;
-          if (value.blank()) {
-            //this.options.morphPosition - adjust
-            label.morph('color:' + this.options.labelOutColor + ';',{
-              duration: this.options.effectDuration,
-              position: 'parallel'
-            });
-            elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp+':' + (this.calculateMove(elements, true)) + 'px;',{
-              duration: this.options.effectDuration,
-              position: 'parallel'
-            });
-          }
-          else {
-            styles = {
-              'color': this.options.labelOutColor
-            };
-            style[this.internalOptions.morphProp] = (-adjust) + 'px';
-            elements[this.internalOptions.morphIdent].setStyle(styles);
-          }
-        }).bindAsEventListener(this)).observe('blur', (function(ev){
-          var input = ev.element();
-          var label = input.previous('label');
-          var elements = {};
-          elements.label = label;
-          elements.input = input;
-          var value = input.getValue();
-          var styles;
-          if (value.blank()) {
-            label.morph('color:' + this.options.labelInColor + ';',{
-              duration: this.options.effectDuration,
-              position: 'parallel'
-            });
-            elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp+':' + (this.calculateMove(elements)) + 'px;',{
-              duration: this.options.effectDuration,
-              position: 'parallel'
-            });
-          }
-        }).bindAsEventListener(this));
+        
+        elements.input.stopObserving('focus', this.focusHandler).observe('blur', this.blurHandler);
+        elements.input.observe('focus', this.focusHandler).observe('blur', this.blurHandler);
       }).bind(this));
+    },
+    initializeElement: function(elements){
+      var inputval = elements.input.getValue();
+      var propVal = parseInt(elements.label.getStyle(this.internalOptions.morphProp), 10);
+      
+      propVal = isNaN(propVal) ? 0 : propVal;
+      elements.label.store('origVal', propVal);
+      
+      var styles = '';
+      styles += 'color:' + this.options.labelInColor + ';';
+      styles += 'position:absolute;';
+      styles += 'display:inline;';
+      styles += 'z-index:99;';
+      styles += this.internalOptions.crossProp + ':' + this.options.crossPosition + 'px;';
+      if (this.options.direction === 'bottom') {
+        styles += 'top:' + this.options.morphPosition + 'px;';
+      }
+      else {
+        styles += this.internalOptions.morphProp + ':' + this.options.morphPosition + 'px;';
+      }
+      elements.label.setStyle(styles);
+      
+      // grab the input value
+      // grab the label width, then add 5 pixels to it
+      var labelwidth = elements.label.getWidth(), labelmove = labelwidth + this.options.labelAdjustment;
+      
+      //onload, check if a field is filled out, if so, move the label out of the way
+      if (!inputval.blank()) {
+        //this.options.morphPosition - labelmove
+        label.morph('color:' + this.options.labelOutColor + ';', {
+          duration: this.options.effectDuration,
+          position: 'parallel'
+        });
+        elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp + ':' + (this.calculateMove(elements, true)) + 'px;', {
+          duration: this.options.effectDuration,
+          position: 'parallel'
+        });
+      }
+    },
+    onBlur: function(ev){
+      var elements = {};
+      var input = ev.element();
+      var label = input.previous('label');
+      elements.label = label;
+      elements.input = input;
+      var value = input.getValue();
+      var styles;
+      if (value.blank()) {
+        label.morph('color:' + this.options.labelInColor + ';', {
+          duration: this.options.effectDuration,
+          position: 'parallel'
+        });
+        elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp + ':' + (this.calculateMove(elements)) + 'px;', {
+          duration: this.options.effectDuration,
+          position: 'parallel'
+        });
+      }
+    },
+    onFocus: function(ev){
+      var elements = {};
+      var input = ev.element();
+      var label = input.previous('label');
+      elements.label = label;
+      elements.input = input;
+      var value = input.getValue();
+      var styles;
+      //var width = label.getWidth();
+      //var adjust = width + this.options.labelAdjustment;
+      if (value.blank()) {
+        //this.options.morphPosition - adjust
+        label.morph('color:' + this.options.labelOutColor + ';', {
+          duration: this.options.effectDuration,
+          position: 'parallel'
+        });
+        elements[this.internalOptions.morphIdent].morph(this.internalOptions.morphProp + ':' + (this.calculateMove(elements, true)) + 'px;', {
+          duration: this.options.effectDuration,
+          position: 'parallel'
+        });
+      }
+      else {
+        styles = {
+          'color': this.options.labelOutColor
+        };
+        style[this.internalOptions.morphProp] = (-adjust) + 'px';
+        elements[this.internalOptions.morphIdent].setStyle(styles);
+      }
     },
     calculateMove: function(elements, isFocus){
       var val = 0;
-      if (!isFocus){
+      if (!isFocus) {
         //val += this.options.morphPosition;
         switch (this.options.direction) {
           case 'right':
             val += this.options.morphOffset;
             break;
           case 'bottom':
-			elements.label.morph('top:' + this.options.morphPosition + 'px',{
+            elements.label.morph('top:' + this.options.morphPosition + 'px', {
               duration: this.options.effectDuration,
               position: 'parallel'
             });
@@ -126,7 +166,7 @@
             val += this.options.morphOffset;
         }
       }
-      else{
+      else {
         switch (this.options.direction) {
           case 'right':
             val += elements.input.getWidth();
@@ -135,7 +175,7 @@
             break;
           case 'bottom':
             val += elements.input.getHeight();
-			elements.label.morph('top:' + (elements.input.getHeight() + this.options.morphOffset+ this.options.morphOffset) + 'px',{
+            elements.label.morph('top:' + (elements.input.getHeight() + this.options.morphOffset + this.options.morphOffset) + 'px', {
               duration: this.options.effectDuration,
               position: 'parallel'
             });
@@ -154,7 +194,7 @@
       }
       return val;
     },
-	setupOptions: function(options){
+    setupOptions: function(options){
       var defaultOptions = {
         labelInColor: '#999',
         labelOutColor: '#000',
@@ -173,7 +213,7 @@
         morphProp: 'left',
         crossProp: 'top'
       };
-      switch (this.options.direction){
+      switch (this.options.direction) {
         case 'right':
           break;
         case 'bottom':
@@ -189,9 +229,9 @@
           this.internalOptions.morphIdent = 'input';
           this.internalOptions.morphProp = 'margin-top';
           this.internalOptions.crossProp = 'left';
-          break;          
+          break;
         //default:
       }
-	}
+    }
   });
 })();
